@@ -1,0 +1,213 @@
+
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=MacRoman">
+
+    <style>
+        .created {
+            color: green
+        }
+
+        .uniqueId {
+            color: red
+        }
+
+        .message {
+            color: black
+        }
+
+        .mainmenu {
+		border-style: solid; 
+		border-width: 0px 1px 0px 0px; 
+		color: black; height: 32em; width: 100%; background-color: #ffffe0;
+                text-align: left; vertical-align: middle;
+	}
+
+	.mainform {
+		border-style: solid; 
+		border-width: 0px 0px 0px 0px; 
+		color: black; height: 32em; width: 100%; background-color: #ffffe0;
+                text-align: centre; vertical-align: middle;
+	}
+
+	DIV.clSlide	{
+		position:absolute;  ;z-index:10; left:0; width:149; height:100; clip:rect(0,149,21,0); padding:6px;
+	}
+	DIV.clSlideSub	{
+		position:absolute; ;z-index:10; padding:4px; clip:rect(0,137,21,0); 
+		width:137; height:21; left:8; visibility:hidden
+	}
+	DIV.clSlideSub2	{
+		position:absolute; ;z-index:10; padding:4px; clip:rect(0,118,21,0); 
+		width:118; height:21; left:8; visibility:hidden
+	}
+	A.clSlideSub2Links	{
+		font-family:MS Sans Serif; font-size:10px;  color:666666
+	}
+
+    </style>
+</head>
+
+<body>
+<script type="text/javascript" src=canvBarChart.js></script>
+<script type="text/javascript" src=canvHorizChart.js></script>
+<script type="text/javascript" src=barPieChart.js></script>
+<script type="text/javascript" src=displayGraph.js></script>
+
+<script type="text/javascript">
+
+var maxlvl=0;
+var str=""; 
+var menus=[]; 
+
+    var counter = Math.floor(Math.random() * 1000);
+
+    /*
+     * Gets message from the server asynchronously.
+     */
+    function getXmlHttpRequest() {
+        try {
+            // Firefox, Opera 8.0+, Safari
+            return new XMLHttpRequest();
+        }
+        catch (e) {
+            // Internet Explorer
+            try {
+                return new ActiveXObject("Msxml2.XMLHTTP");
+            }
+            catch (e) {
+                try {
+                    return new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                catch (e) {
+                    alert("Your browser does not support AJAX!");
+                    return null;
+                }
+            }
+        }
+    }
+
+function SlideMenuInit(){
+	divSlideCont.style.visibility = "visible";
+	var cnt=0;
+	while (cnt<maxlvl){
+		if (menus[cnt].indexOf("Sub")>0){
+			document.getElementById(menus[cnt]).style.display = "none";
+		}else{
+			document.getElementById(menus[cnt]).style.visibility = "visible";
+		}
+		cnt++
+	}
+}
+
+function showSubMenu(lvl){
+	var cnt=0, displaylvl=0;
+	while (cnt<maxlvl){
+		if (menus[cnt].indexOf("Sub"+lvl)>0 && document.getElementById(menus[cnt]).style.display=="block"){
+			displaylvl=1;
+		}
+		document.getElementById(menus[cnt]).style.display = "none";
+		cnt++
+	}
+
+	//alert("in showSubMenu "+lvl+" maxlvl="+maxlvl+" menu["+lvl+"]="+menus[lvl]);
+	cnt=0;
+	//var i=integer.valueOf(lvl);
+	while (cnt<maxlvl){
+		if (menus[cnt].indexOf("Sub")>0){
+			if (menus[cnt].indexOf("Sub"+lvl)>0 && displaylvl==0){
+				document.getElementById(menus[cnt]).style.display = "block";
+				document.getElementById(menus[cnt]).style.visibility = "visible";
+			}
+		}else{
+			document.getElementById(menus[cnt]).style.display = "block";
+			document.getElementById(menus[cnt]).style.visibility = "visible";
+		}
+		cnt++
+	}
+}
+
+function makeMenu(type,text,lvl,lnk,sublvl){
+	//alert("in makemanu maxlvl="+maxlvl);
+
+	if(lvl=="1"&&type=="top"){ str+='<div id="divSlideCont" class="divSlideCont">\n';}
+		
+	if(type=="top"){
+      	str+='\t<div id="divSlide'+lvl+'" class="cSlideLinks"><a href="javascript:showSubMenu('+lvl+')">  '+text+'</a><br></div>\n';
+		menus[maxlvl] = 'divSlide'+lvl;
+		maxlvl++;
+	}
+ 	if(type=="sub"){
+		var res = String.fromCharCode(34);     // quotes
+		var lnk1 = "getForm('"+lnk + ".html');";
+		str+='\t\t<div id="divSlideSub'+lvl+sublvl+'" class="cSlideSubLinks">'+
+				'<td>&nbsp&nbsp&nbsp</td>'+
+				'<td><a onclick='+lnk1+' href="#">'+text+'</a><br></div></td>\n'; 
+		menus[maxlvl] = 'divSlideSub'+lvl+sublvl;
+		maxlvl++;
+		//alert("mm - "+str);
+	}
+	//alert("eof makemenu menu0="+menus[maxlvl - 1]+" sub="+menus[maxlvl - 1].indexOf("Sub"));
+}
+
+    function getForm(message) {
+	//alert("in getform 1 "+message);
+
+        var xmlHttp = getXmlHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4) {
+		//alert(xmlHttp.responseText);
+	       	document.getElementById("form").innerHTML = xmlHttp.responseText;
+            }
+        };
+        xmlHttp.open("GET", message, true);
+        xmlHttp.send();
+    }
+
+</script>
+
+
+<h1>Dash Board</h1>
+
+<form name="form3" style="text-align: left">
+
+<table align="left" width="10%">
+    <tr>
+        <td style="text-align: left;">
+            <br/>
+            <div id="menu" class="mainmenu"> </div>
+        </td>
+    </tr>
+</table>
+<table align="right" width="90%">
+    <tr>
+        <td style="text-align: centre;">
+            <br/>
+            <div id="form" class="mainform"> </div>
+        </td>
+    </tr>
+</table>
+</form>
+</body>
+
+<script type="text/javascript">
+
+	//alert("b4 makemenus - "+"'".charCodeAt(0));
+	str="";
+	
+	makeMenu("top","Graphics","1","","0");
+	makeMenu("sub","Bar Chart","1","canvBarChart","1")
+	makeMenu("sub","Horiz Bar Chart","1","canvHorizChart","2")
+	makeMenu("sub","Bar/Pie Chart","1","barPieChart","3")
+	makeMenu("sub","Draw Graph","1","drawGraph","4")
+
+	str+="</div>";
+	//alert(str);
+
+        document.getElementById("menu").innerHTML = str;
+
+	onload=SlideMenuInit;
+</script>
+
+</html>

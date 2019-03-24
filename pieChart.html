@@ -1,0 +1,246 @@
+
+<html>
+<head>
+    <title>Pie Chart</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=MacRoman">
+</head>
+
+<body>
+<script type="text/javascript">
+
+    function getXmlHttpRequest() {
+        try {
+            // Firefox, Opera 8.0+, Safari
+            return new XMLHttpRequest();
+        }
+        catch (e) {
+            // Internet Explorer
+            try {
+                return new ActiveXObject("Msxml2.XMLHTTP");
+            }
+            catch (e) {
+                try {
+                    return new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                catch (e) {
+                    alert("Your browser does not support AJAX!");
+                    return null;
+                }
+            }
+        }
+    }
+
+    var counter = Math.floor(Math.random() * 1000);
+
+function getLabelPos(canvas, startseg, endseg){
+
+	// the start of the piechart is 3oclock and goes clockwise
+	// the base point is the centre of the piechart
+
+	var rad = 0;
+	var x = 0;
+	var y = 0;
+
+	var startdeg = startseg * (180/Math.PI);
+	var enddeg = endseg * (180/Math.PI);
+	var middeg = (startdeg + enddeg)/2;
+	var deg = (enddeg - startdeg);
+
+	if (deg < 15)	middeg = middeg + 1;
+
+	var centreX = canvas.width/2;
+	var centreY = canvas.height/2;
+
+	var labelRadius = canvas.width/2;
+	var labeldeg = 0;
+
+	switch (true)
+	{
+		case (middeg>0 && middeg<90):
+			labelRadius = canvas.width/2 - (labelRadius/10);	//subtract 10% from radius
+			labeldeg = middeg;
+			rad = labeldeg * (Math.PI/180);				//degrees to radians
+			x = centreX + labelRadius*Math.cos(rad);
+			y = centreY + labelRadius*Math.sin(rad);
+			break;
+
+		case (middeg>90 && middeg<180):
+			labelRadius = canvas.width/2 - (labelRadius/20);	//subtract 5% from radius
+			labeldeg = middeg - 90;
+			rad = labeldeg * (Math.PI/180);
+			x = centreX - labelRadius*Math.sin(rad);
+			y = centreY + labelRadius*Math.cos(rad);
+			break;
+
+		case (middeg>180 && middeg<270):
+			labelRadius = canvas.width/2 - (labelRadius/20);	//subtract 5% from radius
+			labeldeg = middeg - 190;
+			rad = labeldeg * (Math.PI/180);
+			x = centreX - labelRadius*Math.cos(rad);
+			y = centreY - labelRadius*Math.sin(rad);
+			break;
+		
+		case (middeg>270 && middeg<360):
+			labelRadius = canvas.width/2 - (labelRadius/10);	//subtract 10% from radius
+			labeldeg = middeg - 270;
+			rad = labeldeg * (Math.PI/180);
+			x = centreX + labelRadius*Math.sin(rad);
+			y = centreY - labelRadius*Math.cos(rad);
+			break;		
+	}
+
+	var pos = new Array(2);
+
+	//alert("x="+x+" y="+y+" deg="+deg+" sdeg="+startdeg+" mdeg="+middeg);
+	pos[0] = x;
+	pos[1] = y;
+
+	return pos;
+}
+
+function displayPieChart(xx){
+	//file layout each array
+	//	desc		pic x(3)
+	//	bar png		pic x(3)
+	//	value1		pic 9(10)
+	//	value2		pic 9(10)
+	//	colour		pic x(6);
+
+	var inpArray = new Array(12);
+	var desc = new Array(12);
+	var png = new Array(12);
+	var v1 = new Array(12);
+	var v2 = new Array(12);
+	var c = new Array(12);
+
+	var pos = new Array(2);
+
+	inpArray = xx.split("\n");
+
+	var h = 400;
+	var h1 = 0;
+	var tot = 0;
+
+	var cnt = 0;
+	while (inpArray[cnt] != null){
+		desc[cnt] = inpArray[cnt].substr(0,3);
+		png[cnt] = inpArray[cnt].substr(3,3).trim()+".png";
+		v1[cnt] = inpArray[cnt].substr(6,10);
+		v2[cnt] = inpArray[cnt].substr(16,10);
+		c[cnt] = inpArray[cnt].substr(26,6).trim();
+		tot += Number(v1[cnt]);
+		cnt++;
+	}
+
+	var q = String.fromCharCode(34);		//quotes
+
+	var canvas = document.getElementById("can");
+	var ctx = canvas.getContext("2d");
+	var startseg = 0;
+	var endseg = 0;
+	var data = v1;
+	var myTotal = tot; // Automatically calculated so don't touch
+	var myColor = c; // Colors of each slice
+
+	var dx = 0;
+   	var dy = 0;
+	var i =0;
+	var dd = 0;		//sin requires radians
+	var offset = 0;
+
+	while (i < data.length && data[i]!=null) {
+	  	ctx.fillStyle = myColor[i];
+	  	ctx.beginPath();
+	  	ctx.moveTo(canvas.width / 2, canvas.height / 2);
+	  	// Arc Parameters: x, y, radius, startingAngle (radians), endingAngle (radians), antiClockwise (boolean)
+	  	endseg += (Math.PI * 2 * (data[i] / myTotal));
+	  	ctx.arc(canvas.width / 2, canvas.height / 2, canvas.height / 2, startseg, endseg , false);
+	  	ctx.lineTo(canvas.width / 2, canvas.height / 2);
+	  	ctx.fill();
+	  	ctx.fillStyle = "black";
+    	  	ctx.font = "bold 15px Arial";
+
+	  	pos = getLabelPos(canvas, startseg, endseg);
+	  	dx = pos[0];
+	  	dy = pos[1];
+
+	  	//alert("dx="+dx+" dy="+dy+" i="+i+" deg="+dd+" perc="+Math.floor(data[i]*100 / myTotal));
+
+	  	ctx.fillText(Math.floor(data[i]*100 / myTotal)+"%", dx, dy,60);
+	  	startseg += Math.PI * 2 * (data[i] / myTotal);
+	  	ctx.restore();
+	  	i++;
+	}
+}
+
+function displayIndex(xx){
+	//file layout each array
+	//	desc		pic x(3)
+	//	bar png		pic x(3)
+	//	value1		pic 9(10)
+	//	value2		pic 9(10)
+	//	colour		pic x(6);
+
+	var inpArray = new Array(12);
+	var dx = 20;
+	var dy = 30;
+
+	inpArray = xx.split("\n");
+
+	var canvas = document.getElementById("ind");
+	var ctx = canvas.getContext("2d");
+
+	var cnt = 0;
+	while (inpArray[cnt] != null){
+
+	  	ctx.fillStyle = inpArray[cnt].substr(26,6).trim();
+		ctx.font = "bold 50px Arial";
+		dx = 20;
+		ctx.fillText("-", dx, dy);
+
+	  	ctx.fillStyle = "white";
+		ctx.font = "20px Arial";
+		dx = 40;
+		ctx.fillText(inpArray[cnt].substr(0,3), dx, dy);
+
+		dy = dy + 30;
+		cnt++;
+	}
+}
+
+function openTestFile(){
+
+	var allText = "";
+
+        var xmlHttp = getXmlHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4) {
+               	allText = xmlHttp.responseText;
+		displayPieChart(allText);
+		displayIndex(allText);
+                //alert("alltxt="+xmlHttp.status+" - "+allText);
+	    }
+        }
+    	xmlHttp.open("GET", "testbarchart.txt", true);
+        xmlHttp.send();
+
+}
+</script>
+
+<form name="form3">
+
+<td>
+<canvas id="can" width="500" height="500" /></canvas>
+</td>
+<td>
+<canvas id="ind" width="100" height="500" /></canvas>
+</td>
+</form>
+
+<script type="text/javascript">
+
+	openTestFile();
+
+</script>
+</body>
+</html>

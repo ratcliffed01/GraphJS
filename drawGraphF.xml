@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphData>
+   <caption>Formula</caption>
+   <type>Formular</type>
+   <formular>Math.sin(xx)*Math.cos(xx)</formular>
+   <colour>yellow</colour>
+   <range>
+	<xstart>0</xstart>
+	<xend>360</xend>
+	<ystart>-1</ystart>
+	<yend>1</yend>
+   </range>
+</graphData>

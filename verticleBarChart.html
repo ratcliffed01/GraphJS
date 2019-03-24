@@ -1,0 +1,243 @@
+
+<html>
+<head>
+    <title>Bar Chart</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=MacRoman">
+
+    <style>
+        .Caption
+	{
+	    font-size: .9em;
+	    font-style: italic;
+	    margin: 0;
+	    padding: 4px;
+	}
+
+	.BarTable
+	{
+	    border: solid 1px #000000;
+	    padding: 0px;
+	    margin: 0px 4em 0px 4em;
+	    width: 40%;
+	}
+
+	.BarTableVertical
+	{
+	    border: solid 1px #000000;
+	    padding: 0px;
+	    margin: 0px 4em 0px 4em;
+	}
+
+	.BarTable tr, .BarTableVertical tr
+	{
+	    vertical-align: top;
+	    padding: 0px;
+	    margin: 0px;
+	    background-color: #00CC66;
+	}
+
+	.BarTableVertical tr td
+	{
+	    background-color: #CCFFFF;
+	}
+
+	.BarTable tr p, .BarTableVertical tr p
+	{
+	    position: relative;
+	    display: inline;
+	    font-size: .8em;
+	    padding: 0px;
+	    margin: 0px;
+	    z-index: +1;
+	}
+ 
+	.BarFull
+	{
+	    background-image: url(gridline58.gif);
+	    background-repeat: repeat-x;
+	    background-position: left top;
+	    width: 100%;
+	    background-color: #CCFFFF;
+	}
+
+	.BarFull p
+	{
+	    margin: 0px 4px 4px 4px;
+	    background-color: #FFFF99;
+	    color: #000000;
+	}
+
+	.BarVertical
+	{
+	    height: 100%;
+	    background-color: #CCFFFF;
+	}
+
+	tr.BarVertical
+	{
+	    vertical-align: bottom;
+	    text-align: center;
+	}
+
+	.BarVertical p
+	{
+	    margin: 0px 4px 4px 4px;
+	    background-color: #FFFF99;
+	    color: #000000;
+	    text-align: center;
+	}
+
+	.BarLabel
+	{
+	    padding: 0px 4px 0px 4px;
+	    width: 2.5em;
+	    font-size: .9em;
+	}
+    </style>
+</head>
+
+<body>
+<script type="text/javascript">
+
+    function getXmlHttpRequest() {
+        try {
+            // Firefox, Opera 8.0+, Safari
+            return new XMLHttpRequest();
+        }
+        catch (e) {
+            // Internet Explorer
+            try {
+                return new ActiveXObject("Msxml2.XMLHTTP");
+            }
+            catch (e) {
+                try {
+                    return new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                catch (e) {
+                    alert("Your browser does not support AJAX!");
+                    return null;
+                }
+            }
+        }
+    }
+
+    var counter = Math.floor(Math.random() * 1000);
+
+function displayGraph(xx){
+	//file layout each array
+	//	desc		pic x(3)
+	//	bar png		pic x(3)
+	//	value1		pic 9(10)
+	//	value2		pic 9(10)
+
+	var inpArray = new Array(12);
+	var desc = new Array(12);
+	var png = new Array(12);
+	var v1 = new Array(12);
+	var v2 = new Array(12);
+
+	inpArray = xx.split("\n");
+
+	var h = 400;
+	var h1 = 0;
+	var max = 0;
+
+	var cnt = 0;
+	while (inpArray[cnt] != null){
+		desc[cnt] = inpArray[cnt].substr(0,3);
+		png[cnt] = inpArray[cnt].substr(3,3).trim()+".png";
+		v1[cnt] = inpArray[cnt].substr(6,10);
+		v2[cnt] = inpArray[cnt].substr(10,10);
+		if (max < Number(v1[cnt])){
+			max = Number(v1[cnt]);
+		}
+		cnt++;
+	}
+
+	max = max + (max*10)/100;		// add 10% to max as do not want max bar touching top
+
+	var q = String.fromCharCode(34);
+	var str = "";
+
+    	str += "<table>";
+       	str += "<caption>Pages Completed Per Month</caption>";
+       	str += '<tr class="BarVertical">';
+        str += '<td><img src="" height="'+h+'" alt="320" width="12" /></td>';
+
+	cnt = 0;
+	//str += '<td><img src="vh.png" height="120" alt="320" width="12" /></td>';
+	while (desc[cnt] != null){
+		h1 = (((Number(v1[cnt])*100)/max)*(h/100));
+	        str += '<td><img src="'+png[cnt]+'" height="'+h1+'" alt="320" width="12" /></td>';
+		//alert('<td><img src="'+png[cnt]+'" height="'+h1+'" alt="320" width="12" /></td>');
+		cnt++;
+	}
+        str += '</tr>';
+        str += '<tr>';
+        //str += '<td><p>320</p></td>';
+        str += '<td><p></p></td>';
+	cnt = 0;
+	while (desc[cnt] != null){
+	        str += '<td><div class="BarLabel">'+Number(v1[cnt])+'</div></td>';
+		cnt++;
+	}
+        str += '</tr>';
+        str += '<tr>';
+        str += '<td><div class="BarLabel""></div></td>';
+        //str += '<td><div class="BarLabel"">Jan</div></td>';
+	cnt = 0;
+	while (desc[cnt] != null){
+		str += '<td><div class="BarLabel">'+desc[cnt]+'</div></td>';
+		cnt++;
+	}
+        str += '</tr>';
+
+	//alert(str);
+
+        document.getElementById("graph").innerHTML = str;
+
+}
+
+function openTestFile(){
+
+	var inpArray = new Array(12);
+	var allText = "";
+
+        var xmlHttp = getXmlHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+            if (xmlHttp.readyState == 4) {
+               	allText = xmlHttp.responseText;
+		displayGraph(allText);
+                //alert("alltxt="+xmlHttp.status+" - "+allText);
+	    }
+        }
+    	xmlHttp.open("GET", "testbarchart.txt", true);
+        xmlHttp.send();
+
+}
+</script>
+
+<form name="form3">
+
+<table align="left" width="100%">
+    <tr>
+        <td style="text-align: left;">
+            <br/>
+            <div id="graph" class="BarTableVertical"> </div>
+        </td>
+    </tr>
+</table>
+
+</form>
+</body>
+
+<script type="text/javascript">
+
+	openTestFile();
+
+	//alert("xxl="+xx.length);
+
+	document.getElementById("graph").style.display = "block";
+	document.getElementById("graph").style.visibility = "visible";
+</script>
+</html>

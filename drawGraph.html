@@ -1,0 +1,28 @@
+
+<html>
+<head>
+    <title>Pie Chart</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=MacRoman">
+</head>
+
+<body>
+<script type="text/javascript" src=displayGraph.js></script>
+
+<form name="form3">
+<td style="text-align: centre;">&nbsp;&nbsp;&nbsp;<span>Select XML file</span></td>
+<td style="text-align: centre;">&nbsp;&nbsp;&nbsp;<input type="file" id="FF2" name="xmlFile" style="width: 40%" /></td>
+<td style="text-align: centre;">&nbsp;&nbsp;&nbsp;<button type="button" id="POST1" 
+		onclick="openGraphFile()">SUBMIT</button></td><br/>
+<td width="50%" id="can1">
+	<canvas id="can" width="1200" height="500" /></canvas>
+</td>
+
+</form>
+
+<script type="text/javascript">
+
+	openTestFile();
+
+</script>
+</body>
+</html>
